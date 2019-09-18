@@ -67,17 +67,18 @@ class Main extends Component {
   };
 
   loadCompras = async () => {
-    this.setState({ loading: true, total: 0 });
-
+    const { months } = this.state
     const token = await AsyncStorage.getItem('@Sefaz:token');
-    const user = await AsyncStorage.getItem('@Sefaz:user');
+    const today = new Date();
+
+    this.setState({ loading: true, total: 0, currentMonth: months[today.getMonth()] });
 
     await api
-      .get('/nota/show', {
+    .get(`/nota/date/${today.getFullYear()}-${today.getMonth()}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(response => {
-        this.setState({ data: response.data, token, user, loading: false });
+        this.setState({ data: response.data, loading: false });
       })
       .finally(() => {
         this.calcularTotal();
@@ -207,8 +208,8 @@ class Main extends Component {
       );
     }
     return (
-      <View>
-        <Text>Aqui</Text>
+      <View style={styles.containerSemNota}>
+        <Text style={styles.semNota}>Não há notas cadastradas nesse mês.</Text>
       </View>
     );
   };

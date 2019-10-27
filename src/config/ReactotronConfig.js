@@ -1,15 +1,13 @@
-import Reactotron, { networking } from 'reactotron-react-native'
+import Reactotron, { networking } from 'reactotron-react-native';
 
 if (__DEV__) {
-  // 192.168.0.114
-  const tron = Reactotron.configure({ host: '192.168.0.114' }) // controls connection & communication settings
+  const tron = Reactotron.configure({ host: '192.168.10.118' })
     .useReactNative()
-    // .use(networking) // add all built-in react native plugins
-    .connect() // let's connect!
+    .connect();
 
-  console.tron = tron
+  console.tron = tron;
 
-  tron.clear()
+  tron.clear();
 }
 
-export default Reactotron
+export default Reactotron;

@@ -11,7 +11,7 @@ import utils from '~/utils/index';
 import styles from './styles';
 
 const Nota = ({ nota, navigation }) => (
-  <ListItem thumbnail onPress={() => navigation.navigate('Note')}>
+  <ListItem thumbnail onPress={() => navigation.navigate('Note', { nota })}>
     <Left>
       <View style={styles.iconButton}>
         <Icon name="dollar-sign" size={26} color={colors.primary} />
@@ -27,7 +27,7 @@ const Nota = ({ nota, navigation }) => (
     </Body>
     <Right>
       <Text style={styles.currency}>
-        {utils.currencyFormat(parseFloat(nota.total.valor_nota))}
+        R$ {utils.currencyFormat(parseFloat(nota.total.valor_nota))}
       </Text>
     </Right>
   </ListItem>
@@ -36,26 +36,26 @@ const Nota = ({ nota, navigation }) => (
 Nota.propTypes = {
   nota: PropTypes.shape({
     emitente: PropTypes.shape({
-      nome_razao: PropTypes.string.isRequired,
-      nome_fantasia: PropTypes.string.isRequired,
-      cnpj: PropTypes.string.isRequired,
-      endereco: PropTypes.string.isRequired,
-      cep: PropTypes.string.isRequired,
-      municipio: PropTypes.string.isRequired,
-      uf: PropTypes.string.isRequired,
-    }).isRequired,
+      nome_razao: PropTypes.string,
+      nome_fantasia: PropTypes.string,
+      cnpj: PropTypes.string,
+      endereco: PropTypes.string,
+      cep: PropTypes.string,
+      municipio: PropTypes.string,
+      uf: PropTypes.string,
+    }),
     nfe: PropTypes.shape({
-      modelo: PropTypes.number.isRequired,
-      serie: PropTypes.number.isRequired,
-      numero: PropTypes.number.isRequired,
-      data_emissao: PropTypes.string.isRequired,
-      data_emissao_formatada: PropTypes.string.isRequired,
-    }).isRequired,
+      modelo: PropTypes.number,
+      serie: PropTypes.number,
+      numero: PropTypes.number,
+      data_emissao: PropTypes.string,
+      data_emissao_formatada: PropTypes.string,
+    }),
     total: PropTypes.shape({
-      valor_produto: PropTypes.string.isRequired,
-      valor_nota: PropTypes.string.isRequired,
-    }).isRequired,
-  }).isRequired,
+      valor_produto: PropTypes.string,
+      valor_nota: PropTypes.string,
+    }),
+  }),
 };
 
 export default Nota;

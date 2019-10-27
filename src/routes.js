@@ -6,21 +6,28 @@ import {
   createStackNavigator,
 } from 'react-navigation';
 
+import colors from '~/styles/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+
+// Screens
+import MainScreen from '~/pages/Main';
 import LogInScreen from '~/pages/Login';
 import SignInScreen from '~/pages/SignIn';
-import SettingScreen from '~/pages/Settings';
-import ProductsScreen from '~/pages/Searches/Products';
-import MainScreen from '~/pages/Main';
-import NotaFiscalScreen from '~/pages/NotaFiscalPapel';
-
+import MenuScreen from '~/pages/Menu';
+import SearchProductsScreen from '~/pages/Search';
+import ListProductsScreen from '~/pages/Search/ListProducts';
+import NotaFiscalScreen from '~/pages/NotaFiscal';
+import ProductListScreen from '~/pages/ProductList';
 import ScannerScreen from '~/pages/Scanner';
-import colors from '~/styles/colors';
+import LocationScreen from '~/pages/Location';
 
-const SettingScreens = createStackNavigator(
+const MenuScreens = createStackNavigator(
   {
-    Setting: SettingScreen,
-    Details: ProductsScreen,
+    MenuScreen,
+    LocationScreen,
+    ProductListScreen,
+    ListProductsScreen,
+    SearchProductsScreen,
   },
   {
     navigationOptions: {
@@ -55,7 +62,7 @@ const MainScreens = createStackNavigator(
   }
 );
 
-const Routes = (userLogged = true) =>
+const Routes = (userLogged = false) =>
   createAppContainer(
     createSwitchNavigator(
       {
@@ -78,14 +85,14 @@ const Routes = (userLogged = true) =>
         }),
         ProductsSearch: createStackNavigator({
           ProductsSearch: {
-            screen: ProductsScreen,
+            screen: SearchProductsScreen,
           },
         }),
         App: createBottomTabNavigator(
           {
-            SettingScreens,
             MainScreens,
             ScannerScreen,
+            MenuScreens,
           },
           {
             tabBarOptions: {
@@ -101,7 +108,7 @@ const Routes = (userLogged = true) =>
         ),
       },
       {
-        initialRouteName: ScannerScreen ? 'App' : 'App',
+        initialRouteName: userLogged ? 'App' : 'Log',
         showIcon: true,
       }
     )

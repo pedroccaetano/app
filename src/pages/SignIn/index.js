@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard } from 'react-native';
 
 import Toast from 'react-native-easy-toast';
 import TextInput from 'react-native-textinput-with-icons';
@@ -12,9 +12,6 @@ class SignIn extends Component {
   static navigationOptions = {
     headerTitle: 'Crie uma conta',
     headerTintColor: colors.primary,
-    headerTitleStyle: {
-      // fontWeight: 'bold',
-    },
     headerStyle: {
       shadowOpacity: 0,
       shadowOffset: {
@@ -56,7 +53,8 @@ class SignIn extends Component {
         const { resposta } = error.response.data;
 
         this.refs.toast.show(resposta);
-      });
+      })
+      .finally(() => Keyboard.dismiss());
   };
 
   render() {

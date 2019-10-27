@@ -8,7 +8,7 @@ const styles = StyleSheet.create({
   containerPesquisa: {
     backgroundColor: '#7901250F',
   },
-  containerCompras: { backgroundColor: '#79012545' },
+  containerNfce: { backgroundColor: '#79012545' },
   containerSair: { backgroundColor: '#79012575' },
   button: {
     display: 'flex',

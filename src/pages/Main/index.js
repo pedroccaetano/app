@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 
 import {
   View,
-  AsyncStorage,
   ActivityIndicator,
   FlatList,
   Text,
@@ -11,6 +10,8 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+
+import AsyncStorage from '@react-native-community/async-storage';
 
 import { withNavigation } from 'react-navigation';
 
@@ -38,7 +39,7 @@ class Main extends Component {
     loading: false,
     refreshing: false,
     data: [],
-    total: 0,
+    total: 0.0,
     months: [
       'Janeiro',
       'Fevereiro',
@@ -67,29 +68,42 @@ class Main extends Component {
   };
 
   loadCompras = async () => {
-    this.setState({ loading: true, total: 0 });
-
     const token = await AsyncStorage.getItem('@Sefaz:token');
     const user = await AsyncStorage.getItem('@Sefaz:user');
+    const { months } = this.state;
+    const { email } = JSON.parse(user);
+    const today = new Date();
+
+    this.setState({
+      loading: true,
+      total: 0.0,
+      currentMonth: months[today.getMonth()],
+    });
 
     await api
-      .get('/nota/show', {
+      .get(`/nota/date/${today.getFullYear()}-${today.getMonth()}`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: {
+          email,
+        },
       })
       .then(response => {
-        this.setState({ data: response.data, token, user, loading: false });
+        const { nota } = response.data;
+        this.setState({ data: nota });
       })
       .finally(() => {
-        this.calcularTotal();
+        this.setState({ loading: false }, () => {
+          this.calcularTotal();
+        });
       });
   };
 
   calcularTotal = () => {
+    let { total } = this.state;
     const { data } = this.state;
-    let total = 0;
 
     data.map(produto => {
-      total += parseFloat(produto.total.valor_nota.replace(/,/, '.'));
+      total += parseFloat(produto.total.valor_nota);
       return total;
     });
 
@@ -133,6 +147,8 @@ class Main extends Component {
     Picker.init({
       pickerData,
       selectedValue,
+      pickerConfirmBtnText: 'Confirmar',
+      pickerCancelBtnText: 'Fechar',
       pickerTitleText: 'Selecione ano e mês',
       wheelFlex: [1, 1],
       onPickerConfirm: pickedValue => {
@@ -153,13 +169,19 @@ class Main extends Component {
   };
 
   getNoteByMonth = async (year, fristMonth) => {
-    this.setState({ loading: true, total: 0, data: [] });
+    this.setState({ loading: true, total: 0.0, data: [] });
 
     const token = await AsyncStorage.getItem('@Sefaz:token');
+    const user = await AsyncStorage.getItem('@Sefaz:user');
+
+    const { email } = JSON.parse(user);
 
     await api
       .get(`/nota/date/${year}-${fristMonth}`, {
         headers: { Authorization: `Bearer ${token}` },
+        params: {
+          email,
+        },
       })
       .then(response => {
         const { nota } = response.data;
@@ -207,8 +229,8 @@ class Main extends Component {
       );
     }
     return (
-      <View>
-        <Text>Aqui</Text>
+      <View style={styles.containerSemNota}>
+        <Text style={styles.semNota}>Não há notas cadastradas nesse mês.</Text>
       </View>
     );
   };
@@ -226,13 +248,17 @@ class Main extends Component {
             <Text style={styles.monthText}>{currentMonth}</Text>
           </TouchableOpacity>
           <Text style={styles.animatedNumber}>
+            R${' '}
             <AnimateNumber
               value={total}
               formatter={val => {
-                return utils.currencyFormat(parseFloat(val));
+                return `${utils.currencyFormat(parseFloat(val))}`;
               }}
             />
           </Text>
+          {/* <Text style={styles.animatedNumber}>
+            R$ {utils.currencyFormat(parseFloat(total))}
+          </Text> */}
         </View>
         {loading ? (
           <View style={styles.activityContainer}>

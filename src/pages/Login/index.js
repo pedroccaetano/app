@@ -7,8 +7,9 @@ import {
   ActivityIndicator,
   TouchableWithoutFeedback,
   Keyboard,
-  AsyncStorage,
 } from 'react-native';
+
+import AsyncStorage from '@react-native-community/async-storage';
 
 import Toast from 'react-native-easy-toast';
 import TextInput from 'react-native-textinput-with-icons';
@@ -19,13 +20,13 @@ import api from '~/services';
 import colors from '~/styles/colors';
 import styles from './styles';
 
-const logo = require('~/assets/images/betaline.png');
+const logo = require('~/assets/images/logo.png');
 
 class Login extends Component {
   state = {
     user: {},
-    email: '',
-    password: '',
+    email: '1',
+    password: '1',
     errorText: '',
     loading: false,
     errorLogin: false,
@@ -65,6 +66,7 @@ class Login extends Component {
     await AsyncStorage.multiSet([
       ['@Sefaz:token', token],
       ['@Sefaz:user', JSON.stringify(user)],
+      ['@Sefaz:notasStorage', JSON.stringify([])],
     ]);
   };
 
@@ -75,7 +77,7 @@ class Login extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.container}>
-          <View style={styles.loginContainer}>
+          <View style={styles.logoContainer}>
             <Image style={styles.logo} source={logo} />
           </View>
           <View style={styles.formContainer}>
@@ -108,24 +110,27 @@ class Login extends Component {
               underlineActiveColor={colors.primary}
               secureTextEntry
             />
+            <TouchableOpacity
+              style={styles.buttonCadastrar}
+              onPress={this.sigIn}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color={colors.white} />
+              ) : (
+                <Text style={styles.buttonText}>Entrar</Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.buttonCadastrar, styles.buttonEntrar]}
+              onPress={() => navigate('SignIn')}
+            >
+              <Text style={[styles.buttonText, { color: colors.tintColor }]}>
+                Cadastrar
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.buttonCadastrar} onPress={this.sigIn}>
-            {loading ? (
-              <ActivityIndicator size="small" color={colors.white} />
-            ) : (
-              <Text style={styles.buttonText}>Entrar</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.buttonCadastrar, styles.buttonEntrar]}
-            onPress={() => navigate('SignIn')}
-          >
-            <Text style={[styles.buttonText, { color: colors.tintColor }]}>
-              Cadastrar
-            </Text>
-          </TouchableOpacity>
           <Toast
             ref="toast"
             position="bottom"
@@ -138,4 +143,4 @@ class Login extends Component {
   }
 }
 
-export default withNavigation(Login);
+export default Login;

@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   middleContainer: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 100,
+    paddingTop: 24,
   },
   bottomContainer: {
     flex: 1,

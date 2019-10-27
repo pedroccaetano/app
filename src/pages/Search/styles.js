@@ -2,28 +2,22 @@ import { StyleSheet, Dimensions } from 'react-native';
 import colors from '~/styles/colors';
 import base from '~/styles/layout';
 
-const { width } = Dimensions.get('window'); // full width
-const { height } = Dimensions.get('window'); // full height
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   datePicker: {
-    width: width / 2 - 35,
-    fontSize: 14,
+    width: width / 2 - 15,
     height: 48,
     borderWidth: 1,
     borderColor: colors.primary,
-    textAlign: 'left',
-    color: colors.primary,
   },
   dateInput: {
     padding: 5,
     alignItems: 'flex-start',
-    paddingLeft: 10,
     color: colors.primary,
   },
   datePlaceholder: {
-    color: colors.primary,
-    paddingLeft: 10,
+    color: colors.black,
   },
   input: {
     height: 48,

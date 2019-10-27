@@ -18,6 +18,7 @@ module.exports = {
   },
   plugins: ['react'],
   rules: {
+    'prefer-const': false,
     'react/jsx-filename-extension': ['warn', { extensions: ['.js', '.jsx'] }],
     'import/prefer-default-export': 'off',
   },

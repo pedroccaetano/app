@@ -1,7 +1,9 @@
-import { StyleSheet } from 'react-native';
-
+import { StyleSheet, Dimensions } from 'react-native';
 import colors from '~/styles/colors';
 import base from '~/styles/layout';
+
+const { width } = Dimensions.get('window'); // full width
+const { height } = Dimensions.get('window'); // full height
 
 const styles = StyleSheet.create({
   container: {
@@ -13,43 +15,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
+    marginBottom: 16,
   },
   monthContainer: {
     backgroundColor: colors.primary,
-    width: 295,
-    height: 40,
+    width: 154,
+    height: 27,
     borderRadius: 20,
-    marginBottom: 28,
+    // marginBottom: 28,
     display: 'flex',
-    alignItems: 'center',
+    flexDirection: 'row',
     justifyContent: 'center',
+    alignContent: 'center',
+    alignItems: 'center',
   },
   monthText: {
     fontFamily: 'Lucida-Sans-Unicode',
     color: colors.white,
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: 'bold',
-    textAlign: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
+    // textAlign: 'center',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
-  animatedNumber: {
-    color: colors.primary,
-    fontSize: 50,
-  },
-  activityContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  containerSemNota: {
-    textAlign: 'center',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  semNota: {
-    paddingTop: 18,
-    fontSize: 16,
-    color: colors.primary,
+  icon: {
+    color: colors.white,
+    // paddingTop: 8,
   },
 });
 

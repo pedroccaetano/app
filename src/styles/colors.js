@@ -12,7 +12,11 @@ export default {
   success: '#9DCA83',
   danger: '#E37a7a',
 
+  gold: '#F8C327',
+  invoice: '#FFFFB9',
+  backgroundProducts: '#79012533',
+
   transparent: 'transparent',
   darkTransparent: 'rgba(0, 0, 0, 0.6)',
-  whiteTransparent: 'rgba(255, 255, 255, 0.3)'
-}
+  whiteTransparent: 'rgba(255, 255, 255, 0.3)',
+};

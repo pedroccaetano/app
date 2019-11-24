@@ -5,19 +5,17 @@
   "scripts": {
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "jetify": "npx jetify"
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.5.1",
-    "appcenter": "2.5.0",
-    "appcenter-analytics": "2.5.0",
-    "appcenter-crashes": "2.5.0",
     "axios": "^0.19.0",
     "moment": "^2.24.0",
     "native-base": "^2.12.2",
     "prop-types": "^15.7.2",
     "react": "16.8.6",
-    "react-native": "0.60.4",
+    "react-native": "0.60.5",
     "react-native-animate-number": "^0.1.2",
     "react-native-camera": "^3.0.0",
     "react-native-datepicker": "^1.7.2",
@@ -50,6 +48,7 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.2",
     "jest": "^24.8.0",
+    "jetifier": "^1.6.4",
     "metro-react-native-babel-preset": "^0.55.0",
     "react-devtools": "^3.6.2",
     "react-test-renderer": "16.8.6",
@@ -57,10 +56,5 @@
   },
   "jest": {
     "preset": "react-native"
-  },
-  "rnpm": {
-    "assets": [
-      "./src/assets/fonts/"
-    ]
   }
 }

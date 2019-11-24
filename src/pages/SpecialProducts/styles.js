@@ -8,32 +8,12 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     backgroundColor: colors.white,
   },
-  topContainer: {
-    justifyContent: 'center',
-    alignContent: 'center',
+  containerSemProdutos: {
+    textAlign: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  monthContainer: {
-    backgroundColor: colors.primary,
-    width: 154,
-    height: 27,
-    borderRadius: 20,
-    display: 'flex',
-    flexDirection: 'row',
     justifyContent: 'center',
-    alignContent: 'center',
-    alignItems: 'center',
   },
-  ordenacao: {
-    color: colors.white,
-    fontSize: 13,
-    fontWeight: 'bold',
-  },
-  icon: {
-    marginLeft: 12,
-    color: colors.white,
-  },
+  textoSemProdutos: { paddingTop: 18, fontSize: 16, color: colors.primary },
   nameProductContainer: {
     marginLeft: 12,
     marginTop: 20,
@@ -62,6 +42,11 @@ const styles = StyleSheet.create({
   productContainerWhite: {
     height: 100,
     backgroundColor: colors.white,
+  },
+  animatedNumber: {
+    textAlign: 'center',
+    color: colors.primary,
+    fontSize: 50,
   },
 });
 

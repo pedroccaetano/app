@@ -6,7 +6,7 @@ import base from '~/styles/layout';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFB9',
+    backgroundColor: colors.invoice,
     margin: 10,
     padding: 10,
     fontSize: 12,
@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignItems: 'center',
     marginTop: 20,
+    marginBottom: 28,
   },
   textoNormal: {
     fontSize: 12,

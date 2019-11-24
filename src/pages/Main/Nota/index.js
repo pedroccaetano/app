@@ -5,13 +5,12 @@ import { ListItem, Text, Left, Body, Right, View } from 'native-base';
 import { TouchableOpacity, Alert } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome5';
-
 import colors from '~/styles/colors';
 import utils from '~/utils/index';
 import styles from './styles';
 
 const Nota = ({ nota, navigation }) => (
-  <ListItem thumbnail onPress={() => navigation.navigate('Note', { nota })}>
+  <ListItem thumbnail onPress={() => navigation.navigate('Invoice', { nota })}>
     <Left>
       <View style={styles.iconButton}>
         <Icon name="dollar-sign" size={26} color={colors.primary} />
@@ -22,12 +21,12 @@ const Nota = ({ nota, navigation }) => (
         {nota.emitente.nome_razao.substr(0, 26).toUpperCase()}
       </Text>
       <Text note numberOfLines={1} style={styles.dataEmissao}>
-        {nota.nfe.data_emissao_formatada}
+        {nota.nfce.data_emissao_formatada}
       </Text>
     </Body>
     <Right>
       <Text style={styles.currency}>
-        R$ {utils.currencyFormat(parseFloat(nota.total.valor_nota))}
+        R$ {utils.currencyFormat(parseFloat(nota.nfce.valor_nota))}
       </Text>
     </Right>
   </ListItem>

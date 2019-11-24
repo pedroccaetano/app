@@ -33,7 +33,7 @@ class SignIn extends Component {
     const { username, email, password } = this.state;
 
     await api
-      .post('/users', {
+      .post('/user', {
         name: username,
         email,
         password,
@@ -66,7 +66,7 @@ class SignIn extends Component {
         <View style={styles.middleContainer}>
           <TextInput
             value={username}
-            onChangeText={text => this.setState({ username: text })}
+            onChangeText={username => this.setState({ username })}
             autoCorrect={false}
             label="Seu nome"
             returnKeyType="next"
@@ -80,7 +80,7 @@ class SignIn extends Component {
           />
           <TextInput
             value={email}
-            onChangeText={text => this.setState({ email: text })}
+            onChangeText={email => this.setState({ email })}
             autoCorrect={false}
             label="Seu e-mail"
             keyboardType="email-address"
@@ -95,7 +95,7 @@ class SignIn extends Component {
           />
           <TextInput
             value={password}
-            onChangeText={text => this.setState({ password: text })}
+            onChangeText={password => this.setState({ password })}
             autoCorrect={false}
             label="Sua senha"
             returnKeyType="next"
@@ -111,7 +111,7 @@ class SignIn extends Component {
           <Toast
             ref="toast"
             position="center"
-            style={{ backgroundColor: `${colors.primary}` }}
+            style={{ backgroundColor: colors.primary }}
           />
           <TouchableOpacity
             style={styles.buttonCadastrar}

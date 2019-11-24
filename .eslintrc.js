@@ -22,12 +22,4 @@ module.exports = {
     'react/jsx-filename-extension': ['warn', { extensions: ['.js', '.jsx'] }],
     'import/prefer-default-export': 'off',
   },
-  settings: {
-    'import/resolver': {
-      'babel-plugin-root-import': {
-        rootPathPrefix: '~',
-        rootPathSuffix: 'src',
-      },
-    },
-  },
 };

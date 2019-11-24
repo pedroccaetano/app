@@ -10,6 +10,7 @@ import {
 
 import AsyncStorage from '@react-native-community/async-storage';
 
+import Picker from 'react-native-picker';
 import DatePicker from 'react-native-datepicker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Toast from 'react-native-easy-toast';
@@ -39,13 +40,13 @@ class Products extends Component {
   state = {
     initDate: '',
     finalDate: '',
-    barcode: '',
     productName: '',
     organization: '',
     state: '',
+    stateText: '',
     loading: false,
     data: [],
-    notasLocalStorage: [],
+    notasAsyncStorage: [],
   };
 
   componentDidMount = async () => {
@@ -58,10 +59,10 @@ class Products extends Component {
     });
   };
 
-  restoreNotesLocalStorage = async () => {
+  restoreNotesAsyncStorage = async () => {
     await AsyncStorage.getItem('@Sefaz:notasStorage').then(response => {
       this.setState({
-        notasLocalStorage: JSON.parse(response),
+        notasAsyncStorage: JSON.parse(response),
       });
     });
   };
@@ -69,58 +70,45 @@ class Products extends Component {
   findProducts = async () => {
     this.setState({ loading: true });
 
-    let {
-      initDate,
-      finalDate,
-      barcode,
-      organization,
-      productName,
-      state,
-    } = this.state;
+    let { initDate, finalDate, organization, productName, state } = this.state;
 
     const token = await AsyncStorage.getItem('@Sefaz:token');
-    const user = await AsyncStorage.getItem('@Sefaz:user');
-    const { email } = JSON.parse(user);
 
     if (organization === '') {
       organization = '""';
     }
 
-    if (barcode === '') {
-      barcode = '""';
-    }
-
     if (productName === '') {
-      productName = '""';
+      this.refs.toast.show('É necessário entrar com nome do produto');
+      this.setState({ loading: false });
+      return;
     }
 
     if (state === '') {
-      state = '""';
+      this.refs.toast.show('É necessário selecionar o estado');
+      this.setState({ loading: false });
+      return;
     }
 
     initDate = utils.convertDateToString(initDate);
     finalDate = utils.convertDateToString(finalDate);
 
-    await this.restoreNotesLocalStorage();
-
     await api
       .get(
-        `/nota/date/initDate/${initDate}/finalDate/${finalDate}/productName/${productName}/barcode/${barcode}/organization/${organization}/state/${state}`,
+        `/nota/date/initDate/${initDate}/finalDate/${finalDate}/productName/${productName}/organization/${organization}/state/${state}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-          params: {
-            email,
-          },
         }
       )
-      .then(response => {
+      .then(async response => {
+        await this.restoreNotesAsyncStorage();
         const { nota: notas } = response.data;
 
         if (notas.length) {
           const { navigation } = this.props;
 
           notas.map(item => {
-            let favoritado = this.hasProductLocalStorage(item.produto);
+            let favoritado = this.hasProductAsyncStorage(item.produto);
 
             item.produto.favoritado = favoritado;
           });
@@ -130,7 +118,7 @@ class Products extends Component {
           this.refs.toast.show('Não encontramos nenhuma nota');
         }
       })
-      .catch(error => {
+      .catch(() => {
         this.refs.toast.show('Erro inesperado');
       })
       .finally(() => {
@@ -139,12 +127,12 @@ class Products extends Component {
       });
   };
 
-  hasProductLocalStorage = produt => {
-    const { notasLocalStorage } = this.state;
+  hasProductAsyncStorage = produt => {
+    const { notasAsyncStorage } = this.state;
 
     let statusFavorito = false;
 
-    notasLocalStorage.map(note => {
+    notasAsyncStorage.map(note => {
       if (note.produto.codigo == produt.codigo) {
         statusFavorito = true;
       }
@@ -173,11 +161,39 @@ class Products extends Component {
     });
   };
 
+  handleEstado = () => {
+    Keyboard.dismiss();
+
+    const estados = ['TO', 'PE', 'RS'];
+
+    const pickerData = [estados];
+
+    const selectedValue = [estados];
+
+    Picker.init({
+      pickerData,
+      selectedValue,
+      pickerConfirmBtnText: 'Confirmar',
+      pickerCancelBtnText: 'Fechar',
+      pickerTitleText: 'Selecione um estado',
+      wheelFlex: [1],
+      onPickerConfirm: pickedValue => {
+        this.setState({
+          state: pickedValue[0],
+        });
+      },
+    });
+    Picker.show();
+  };
+
+  hidePicker = () => {
+    Picker.hide();
+  };
+
   render() {
     const {
       initDate,
       finalDate,
-      barcode,
       organization,
       productName,
       loading,
@@ -249,20 +265,13 @@ class Products extends Component {
             />
           </View>
         </View>
-        {/* <View>
-          <Text style={styles.label}>Código de barras</Text>
-          <TextInput
-            style={styles.input}
-            onChangeText={barcode => this.setState({ barcode })}
-            value={barcode}
-          />
-        </View> */}
         <View>
           <Text style={styles.label}>Nome do produto</Text>
           <TextInput
             style={[styles.input, { color: colors.black }]}
             onChangeText={productName => this.setState({ productName })}
             value={productName}
+            onFocus={() => this.hidePicker()}
           />
         </View>
         <View>
@@ -271,6 +280,7 @@ class Products extends Component {
             style={[styles.input, { color: colors.black }]}
             onChangeText={organization => this.setState({ organization })}
             value={organization}
+            onFocus={() => this.hidePicker()}
           />
         </View>
 
@@ -278,8 +288,9 @@ class Products extends Component {
           <Text style={styles.label}>Estado</Text>
           <TextInput
             style={[styles.input, { color: colors.black }]}
-            onChangeText={state => this.setState({ state })}
             value={state}
+            onTouchStart={() => this.handleEstado()}
+            showSoftInputOnFocus={false}
           />
         </View>
 

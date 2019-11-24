@@ -16,18 +16,18 @@ import SignInScreen from '~/pages/SignIn';
 import MenuScreen from '~/pages/Menu';
 import SearchProductsScreen from '~/pages/Search';
 import ListProductsScreen from '~/pages/Search/ListProducts';
-import NotaFiscalScreen from '~/pages/NotaFiscal';
-import ProductListScreen from '~/pages/ProductList';
+import InvoiceScreen from '~/pages/Invoice';
+import SpecialProductsScreen from '~/pages/SpecialProducts';
 import ScannerScreen from '~/pages/Scanner';
 import LocationScreen from '~/pages/Location';
 
 const MenuScreens = createStackNavigator(
   {
     MenuScreen,
-    LocationScreen,
-    ProductListScreen,
-    ListProductsScreen,
     SearchProductsScreen,
+    LocationScreen,
+    SpecialProductsScreen,
+    ListProductsScreen,
   },
   {
     navigationOptions: {
@@ -46,7 +46,7 @@ const MenuScreens = createStackNavigator(
 const MainScreens = createStackNavigator(
   {
     Main: MainScreen,
-    Note: NotaFiscalScreen,
+    Invoice: InvoiceScreen,
   },
   {
     navigationOptions: {
@@ -72,7 +72,7 @@ const Routes = (userLogged = false) =>
             header: null,
           },
         },
-        Log: createStackNavigator({
+        Login: createStackNavigator({
           LogIn: {
             screen: LogInScreen,
             navigationOptions: {
@@ -103,13 +103,15 @@ const Routes = (userLogged = false) =>
               style: {
                 backgroundColor: colors.white,
               },
+              keyboardHidesTabBar: true,
             },
           }
         ),
       },
       {
-        initialRouteName: userLogged ? 'App' : 'Log',
+        initialRouteName: userLogged ? 'App' : 'Login',
         showIcon: true,
+        keyboardHidesTabBar: true,
       }
     )
   );

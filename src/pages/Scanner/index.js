@@ -1,18 +1,21 @@
 import React, { Component } from 'react';
 import {
   StyleSheet,
-  Linking,
   Dimensions,
-  StatusBar,
   View,
   Text,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
-import QRCodeScanner from 'react-native-qrcode-scanner';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
 import AsyncStorage from '@react-native-community/async-storage';
-import api from '~/services/index';
+import QRCodeScanner from 'react-native-qrcode-scanner';
+
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Toast from 'react-native-easy-toast';
+
+import { PERNAMBUCO, RIO_GRANDE_DO_SUL, TOCANTINS } from '~/utils/sefaz';
+import api from '~/services/index';
 
 import colors from '~/styles/colors';
 const TabIcon = ({ tintColor }) => (
@@ -22,25 +25,17 @@ const TabIcon = ({ tintColor }) => (
 class Scanner extends Component {
   static navigationOptions = {
     tabBarIcon: TabIcon,
-    // tabBarVisible: false,
-    // header: ({ goBack }) => ({
-    //   left: (
-    //     <Icon
-    //       name="chevron-left"
-    //       onPress={() => {
-    //         goBack();
-    //       }}
-    //     />
-    //   ),
-    // }),
   };
 
   state = {
     screenWidth: '',
     screenHeight: '',
     url: '',
+    scanner: {},
     focusedScreen: false,
-    reactivateCamera: true,
+    reactivateCamera: false,
+    loading: false,
+    marker: true,
   };
 
   componentDidMount() {
@@ -59,32 +54,60 @@ class Scanner extends Component {
     this.setState({ screenWidth, screenHeight });
   };
 
-  onSuccess = e => {
-    let { reactivateCamera } = this.state;
+  readQrCode = scannerData => {
+    const { data: url } = scannerData;
 
-    this.setState(
-      {
-        reactivateCamera: false,
-      },
-      () => {
-        Alert.alert(
-          'Alert Title',
-          'Deseja salvar a nota',
-          [
-            {
-              text: 'Ask me later',
-              onPress: () => console.log('Ask me later pressed'),
+    const urlDecisao = url.substr(0, 27);
+
+    this.setState({
+      marker: false,
+    });
+
+    if (
+      urlDecisao === PERNAMBUCO ||
+      urlDecisao === RIO_GRANDE_DO_SUL ||
+      urlDecisao === TOCANTINS
+    ) {
+      Alert.alert(
+        'Deseja salvar a nota?',
+        '',
+        [
+          {
+            text: 'Cancelar',
+            onPress: () => {
+              this.scanner.reactivate();
+              this.setState({
+                marker: true,
+              });
             },
-            {
-              text: 'Cancel',
-              onPress: () => this.cancelNota(),
-              style: 'cancel',
-            },
-            { text: 'OK', onPress: () => this.saveNota(e.data) },
-          ],
-          { cancelable: false }
-        );
-      }
+            style: 'cancel',
+          },
+          { text: 'Salvar', onPress: () => this.saveNota(url) },
+        ],
+        { cancelable: false }
+      );
+    } else {
+      this.alertError();
+    }
+  };
+
+  alertError = () => {
+    Alert.alert(
+      'Erro!',
+      'Não foi possivel identificar a nota.',
+      [
+        {
+          text: 'Cancelar',
+          onPress: () => {
+            this.scanner.reactivate();
+            this.setState({
+              marker: true,
+            });
+          },
+          style: 'cancel',
+        },
+      ],
+      { cancelable: false }
     );
   };
 
@@ -100,65 +123,73 @@ class Scanner extends Component {
 
     const { email } = JSON.parse(user);
 
-    await api
-      .post(
-        `/nota/store`,
-        { url, email },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      )
-      .then(response => {
-        console.log(response);
-        // const { nota: notas } = response.data;
-        // if (notas.length) {
-        //   const { navigation } = this.props;
-        //   navigation.navigate('ListProduct', { notas });
-        // }
-        // this.refs.toast.show('Não encontramos nenhuma nota');
-      })
-      .catch(error => {
-        this.refs.toast.show('Erro inesperado');
-      })
-      .finally(() => {});
+    this.setState(
+      {
+        loading: true,
+        marker: false,
+      },
+      async () => {
+        await api
+          .post(
+            `/nota/store`,
+            { url, email },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          )
+          .then(response => {
+            const { nota, mensagem } = response.data;
+
+            if (mensagem) {
+              this.refs.toast.show(mensagem);
+
+              // const { navigation } = this.props;
+              // navigation.navigate('ListProduct', { notas });
+            }
+            // this.refs.toast.show('Não encontramos nenhuma nota');
+          })
+          .catch(error => {
+            this.refs.toast.show('Erro inesperado');
+          })
+          .finally(() => {
+            this.setState({
+              loading: false,
+              marker: true,
+            });
+          });
+      }
+    );
   };
 
   cameraView = () => {
-    const { reactivateCamera } = this.state;
+    const { marker, loading } = this.state;
 
     return (
       <>
-        <StatusBar translucent hidden showHideTransition />
         <QRCodeScanner
-          onRead={this.onSuccess}
-          // topContent={
-          //   <Text style={styles.centerText}>
-          //     Go to{' '}
-          //     <Text style={styles.textBold}>wikipedia.org/wiki/QR_code</Text> on
-          //     your computer and scan the QR code.
-          //   </Text>
-          // }
+          ref={node => {
+            this.scanner = node;
+          }}
+          onRead={this.readQrCode}
           fadeIn={false}
           cameraStyle={{ height: 800 }}
-          showMarker
+          showMarker={marker}
           markerStyle={{}}
-          reactivate
           checkAndroid6Permissions={true}
           cameraType="back"
-          // permissionDialogTitle="mudar title"
-          // permissionDialogMessage="mudar corpo"
-          // bottomContent={
-          //   <TouchableOpacity style={styles.buttonTouchable}>
-          //     <Text style={styles.buttonText}>OK. Got it!</Text>
-          //   </TouchableOpacity>
-          // }
         />
+
+        {loading ? (
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            <ActivityIndicator color={colors.primary} size="large" />
+          </View>
+        ) : null}
 
         <Toast
           ref="toast"
           position="bottom"
           positionValue={200}
-          style={{ backgroundColor: `${colors.primary}` }}
+          style={{ backgroundColor: colors.primary }}
           fadeOutDuration={1000}
         />
       </>
@@ -178,27 +209,5 @@ class Scanner extends Component {
     }
   }
 }
-const styles = StyleSheet.create({
-  centerText: {
-    flex: 1,
-    fontSize: 18,
-    padding: 32,
-    color: '#777',
-  },
-  containerStyle: {
-    height: 900,
-  },
-  textBold: {
-    fontWeight: '500',
-    color: '#000',
-  },
-  buttonText: {
-    fontSize: 21,
-    color: 'rgb(0,122,255)',
-  },
-  buttonTouchable: {
-    padding: 16,
-  },
-});
 
 export default Scanner;

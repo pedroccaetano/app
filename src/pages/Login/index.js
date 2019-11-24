@@ -14,8 +14,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 import Toast from 'react-native-easy-toast';
 import TextInput from 'react-native-textinput-with-icons';
 
-import { withNavigation } from 'react-navigation';
-
 import api from '~/services';
 import colors from '~/styles/colors';
 import styles from './styles';
@@ -25,8 +23,8 @@ const logo = require('~/assets/images/logo.png');
 class Login extends Component {
   state = {
     user: {},
-    email: '1',
-    password: '1',
+    email: '',
+    password: '',
     errorText: '',
     loading: false,
     errorLogin: false,
@@ -39,18 +37,23 @@ class Login extends Component {
     this.setState({ loading: true });
 
     await api
-      .post(`/sessions`, {
+      .post(`/session`, {
         email,
         password,
       })
-      .then(response => {
+      .then(async response => {
         const { token, user } = response.data;
 
-        this.saveUser(token, user);
+        await AsyncStorage.multiSet([
+          ['@Sefaz:token', token],
+          ['@Sefaz:user', JSON.stringify(user)],
+          ['@Sefaz:notasStorage', JSON.stringify([])],
+        ]);
 
         navigation.navigate('App');
       })
       .catch(err => {
+        console.log('erro fanily');
         const { resposta } = err.response.data;
 
         this.refs.toast.show(resposta);
@@ -60,14 +63,6 @@ class Login extends Component {
       .finally(() => {
         this.setState({ loading: false });
       });
-  };
-
-  saveUser = async (token, user) => {
-    await AsyncStorage.multiSet([
-      ['@Sefaz:token', token],
-      ['@Sefaz:user', JSON.stringify(user)],
-      ['@Sefaz:notasStorage', JSON.stringify([])],
-    ]);
   };
 
   render() {
@@ -134,7 +129,7 @@ class Login extends Component {
           <Toast
             ref="toast"
             position="bottom"
-            style={{ backgroundColor: `${colors.primary}` }}
+            style={{ backgroundColor: colors.primary }}
             fadeOutDuration={1000}
           />
         </View>

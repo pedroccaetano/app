@@ -69,9 +69,9 @@ class Main extends Component {
 
   loadCompras = async () => {
     const token = await AsyncStorage.getItem('@Sefaz:token');
-    const user = await AsyncStorage.getItem('@Sefaz:user');
+
     const { months } = this.state;
-    const { email } = JSON.parse(user);
+
     const today = new Date();
 
     this.setState({
@@ -83,9 +83,6 @@ class Main extends Component {
     await api
       .get(`/nota/date/${today.getFullYear()}-${today.getMonth()}`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          email,
-        },
       })
       .then(response => {
         const { nota } = response.data;
@@ -93,17 +90,17 @@ class Main extends Component {
       })
       .finally(() => {
         this.setState({ loading: false }, () => {
-          this.calcularTotal();
+          this.calculate();
         });
       });
   };
 
-  calcularTotal = () => {
+  calculate = () => {
     let { total } = this.state;
     const { data } = this.state;
 
     data.map(produto => {
-      total += parseFloat(produto.total.valor_nota);
+      total += parseFloat(produto.nfce.valor_nota);
       return total;
     });
 
@@ -172,23 +169,17 @@ class Main extends Component {
     this.setState({ loading: true, total: 0.0, data: [] });
 
     const token = await AsyncStorage.getItem('@Sefaz:token');
-    const user = await AsyncStorage.getItem('@Sefaz:user');
-
-    const { email } = JSON.parse(user);
 
     await api
-      .get(`/nota/date/${year}-${fristMonth}`, {
+      .get(`/nota/date/${year}-${fristMonth[0]}`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          email,
-        },
       })
       .then(response => {
         const { nota } = response.data;
         this.setState({ data: nota });
       })
       .finally(() => {
-        this.calcularTotal();
+        this.calculate();
         this.setState({ loading: false });
       });
   };
@@ -256,9 +247,6 @@ class Main extends Component {
               }}
             />
           </Text>
-          {/* <Text style={styles.animatedNumber}>
-            R$ {utils.currencyFormat(parseFloat(total))}
-          </Text> */}
         </View>
         {loading ? (
           <View style={styles.activityContainer}>

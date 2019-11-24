@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
-
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import { View, Text, TouchableOpacity, FlatList, Keyboard } from 'react-native';
 import { Row, Grid, Col } from 'react-native-easy-grid';
+
+import AsyncStorage from '@react-native-community/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Picker from 'react-native-picker';
 
 import colors from '~/styles/colors';
 import styles from './styles';
-import utils from '~/utils/index';
 
 class ListProducts extends Component {
   static navigationOptions = {
@@ -30,46 +30,126 @@ class ListProducts extends Component {
   state = {
     notas: [],
     ordernar: false,
-    notasLocalStorage: [],
+    notasAsyncStorage: [],
+    ordecanao: 'Mais Recente',
   };
 
   componentDidMount = async () => {
-    this.setState({
-      notas: this.props.navigation.state.params.notas
-        .sort((a, b) => {
-          return (
-            parseFloat(a.produto.preco_unitario) -
-            parseFloat(b.produto.preco_unitario)
-          );
-        })
-        .reverse(),
-    });
-
-    await this.restoreNotesLocalStorage();
+    this.setState(
+      {
+        notas: this.props.navigation.state.params.notas,
+      },
+      async () => {
+        this.maisRecente();
+        await this.restoreNotesAsyncStorage();
+      }
+    );
   };
 
-  restoreNotesLocalStorage = async () => {
+  restoreNotesAsyncStorage = async () => {
     await AsyncStorage.getItem('@Sefaz:notasStorage').then(response => {
       this.setState({
-        notasLocalStorage: JSON.parse(response),
+        notasAsyncStorage: JSON.parse(response),
       });
     });
   };
 
-  defineNotesLocalStorage = async () => {
-    const { notasLocalStorage } = this.state;
+  defineNotesAsyncStorage = async () => {
+    const { notasAsyncStorage } = this.state;
 
     await AsyncStorage.setItem(
       '@Sefaz:notasStorage',
-      JSON.stringify(notasLocalStorage)
+      JSON.stringify(notasAsyncStorage)
     );
+  };
+
+  maiorPreco = () => {
+    const { notas } = this.state;
+
+    this.setState({ notas: [] }, () => {
+      this.setState({
+        ordecanao: 'Maior Preço',
+        notas: notas
+          .sort((a, b) => {
+            return (
+              parseFloat(a.produto.preco_unitario) -
+              parseFloat(b.produto.preco_unitario)
+            );
+          })
+          .reverse(),
+      });
+    });
+  };
+
+  menorPreco = () => {
+    const { notas } = this.state;
+
+    this.setState({ notas: [] }, () => {
+      this.setState({
+        ordecanao: 'Menor Preço',
+        notas: notas.sort((a, b) => {
+          return (
+            parseFloat(a.produto.preco_unitario) -
+            parseFloat(b.produto.preco_unitario)
+          );
+        }),
+      });
+    });
+  };
+
+  maisRecente = () => {
+    const { notas } = this.state;
+
+    this.setState({ notas: [] }, () => {
+      this.setState({
+        ordecanao: 'Mais Recente',
+        notas: notas.sort((a, b) => {
+          return new Date(a.nfce.data_emissao) - new Date(b.nfce.data_emissao);
+        }),
+      });
+    });
+  };
+
+  handleOrdenacao = () => {
+    Keyboard.dismiss();
+
+    const ordecanao = ['Mais Recente', 'Menor Preço', 'Maior Preço'];
+    const pickerData = [ordecanao];
+    const selectedValue = [ordecanao];
+
+    Picker.init({
+      pickerData,
+      selectedValue,
+      pickerConfirmBtnText: 'Confirmar',
+      pickerCancelBtnText: 'Fechar',
+      pickerTitleText: 'Ordenar por',
+      wheelFlex: [1],
+      onPickerConfirm: pickedValue => {
+        if (pickedValue[0] === 'Mais Recente') {
+          this.maisRecente();
+        }
+
+        if (pickedValue[0] === 'Menor Preço') {
+          this.menorPreco();
+        }
+
+        if (pickedValue[0] === 'Maior Preço') {
+          this.maiorPreco();
+        }
+      },
+    });
+    Picker.show();
+  };
+
+  hidePicker = () => {
+    Picker.hide();
   };
 
   ordernarNotas = () => {
     const { ordernar, notas } = this.state;
 
     this.setState({ ordernar: !ordernar, notas: [] }, () => {
-      if (!ordernar) {
+      if (ordernar) {
         this.setState({
           notas: notas.sort((a, b) => {
             return (
@@ -102,170 +182,65 @@ class ListProducts extends Component {
     }
   };
 
-  renderProduct = (item, index) => {
-    const { navigation } = this.props;
-
-    return index % 2 == 0 ? (
-      <Grid style={{ height: 100, backgroundColor: '#79012533' }}>
-        <Col>
-          <Row style={{ marginLeft: 12, marginTop: 20 }}>
-            <Text>
-              <Icon name={'shopping-basket'} size={22} color={colors.primary} />
-            </Text>
-            <Text numberOfLines={1} style={{ marginLeft: 4, fontSize: 15 }}>
-              {item.produto.nome}
-            </Text>
-          </Row>
-          <Row style={{ marginLeft: 12 }}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('LocationScreen')}
-            >
-              <Text numberOfLines={1} style={{ fontSize: 15 }}>
-                <Icon name={'location-on'} size={22} color={colors.primary} />
-                {item.emitente.nome_fantasia}
-              </Text>
-            </TouchableOpacity>
-          </Row>
-        </Col>
-        <Col
-          style={{
-            width: 80,
-            flex: 0.6,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {item.produto.favoritado ? (
-            <Text onPress={() => this.pushFavorito(index)}>
-              <Icon name={'star'} size={30} color={'#F8C327'} />
-            </Text>
-          ) : (
-            <Text onPress={() => this.pushFavorito(index)}>
-              <Icon name={'star-border'} size={30} color={'black'} />
-            </Text>
-          )}
-          <Text
-            style={{
-              fontSize: 23,
-              fontWeight: 'bold',
-            }}
-          >
-            R$ {item.produto.preco_unitario}
-          </Text>
-        </Col>
-      </Grid>
-    ) : (
-      <Grid style={{ height: 100, backgroundColor: colors.white }}>
-        <Col>
-          <Row style={{ marginLeft: 12, marginTop: 20 }}>
-            <Text>
-              <Icon name={'shopping-basket'} size={22} color={colors.primary} />
-            </Text>
-            <Text numberOfLines={1} style={{ marginLeft: 4, fontSize: 15 }}>
-              {item.produto.nome}
-            </Text>
-          </Row>
-          <Row style={{ marginLeft: 12 }}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('LocationScreen')}
-            >
-              <Text numberOfLines={1} style={{ fontSize: 15 }}>
-                <Icon name={'location-on'} size={22} color={colors.primary} />
-                {item.emitente.nome_fantasia}
-              </Text>
-            </TouchableOpacity>
-          </Row>
-        </Col>
-        <Col
-          style={{
-            width: 80,
-            flex: 0.6,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {item.produto.favoritado ? (
-            <Text onPress={() => this.pushFavorito(index)}>
-              <Icon name={'star'} size={30} color={'#F8C327'} />
-            </Text>
-          ) : (
-            <Text onPress={() => this.pushFavorito(index)}>
-              <Icon name={'star-border'} size={30} color={'black'} />
-            </Text>
-          )}
-          <Text
-            style={{
-              fontSize: 23,
-              fontWeight: 'bold',
-            }}
-          >
-            R$ {utils.currencyFormat(parseFloat(item.produto.preco_unitario))}
-          </Text>
-        </Col>
-      </Grid>
-    );
-  };
-
-  pushFavorito = async index => {
-    const { notas, notasLocalStorage } = this.state;
-    let notas_aux = notas;
+  favoriteProduct = index => {
+    const { notas } = this.state;
+    let notaAux = notas;
 
     this.setState({
       notas: [],
     });
 
-    let nota = notas_aux[index];
-    nota.produto.favoritado = !notas_aux[index].produto.favoritado;
-    notas_aux[index] = nota;
+    let nota = notaAux[index];
+    nota.produto.favoritado = !notaAux[index].produto.favoritado;
+    notaAux[index] = nota;
 
     this.setState({
-      notas: notas_aux,
+      notas: notaAux,
     });
 
-    await this.saveLocalStorage(nota);
+    this.saveAsyncStorage(nota);
   };
 
-  saveLocalStorage = async nota => {
-    const { notasLocalStorage } = this.state;
-    const { produto } = nota;
+  saveAsyncStorage = async nota => {
+    const { notasAsyncStorage } = this.state;
 
-    if (this.hasProductLocalStorage(produto)) {
-      this.deleteProduct(produto);
+    if (this.hasProductAsyncStorage(nota.produto)) {
+      this.deleteProductAsyncStorage(nota.produto);
     } else {
       this.setState(
         {
-          notasLocalStorage: [...notasLocalStorage, nota],
+          notasAsyncStorage: [...notasAsyncStorage, nota],
         },
         async () => {
-          await this.defineNotesLocalStorage();
+          await this.defineNotesAsyncStorage();
         }
       );
     }
   };
 
-  deleteProduct = product => {
-    const { notasLocalStorage } = this.state;
+  deleteProductAsyncStorage = product => {
+    const { notasAsyncStorage } = this.state;
 
-    let notas = notasLocalStorage.filter(
+    let notas = notasAsyncStorage.filter(
       note => note.produto.codigo != product.codigo
     );
 
     this.setState(
       {
-        notasLocalStorage: notas,
+        notasAsyncStorage: notas,
       },
       async () => {
-        await this.defineNotesLocalStorage();
+        await this.defineNotesAsyncStorage();
       }
     );
   };
 
-  hasProductLocalStorage = product => {
-    const { notasLocalStorage } = this.state;
+  hasProductAsyncStorage = product => {
+    const { notasAsyncStorage } = this.state;
 
     let statusFavorito = false;
 
-    notasLocalStorage.map(note => {
+    notasAsyncStorage.map(note => {
       if (note.produto.codigo == product.codigo) {
         statusFavorito = true;
       }
@@ -274,37 +249,109 @@ class ListProducts extends Component {
     return statusFavorito;
   };
 
+  renderProduct = (item, index) => {
+    const { navigation } = this.props;
+
+    return index % 2 == 0 ? (
+      <Grid style={styles.productContainerRed}>
+        <Col>
+          <Row style={styles.nameProductContainer}>
+            <Text>
+              <Icon name={'shopping-basket'} size={22} color={colors.primary} />
+            </Text>
+            <Text numberOfLines={1} style={styles.nameProductText}>
+              {item.produto.nome}
+            </Text>
+          </Row>
+          <Row style={styles.marginLeft}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('LocationScreen', { item })}
+            >
+              <Text numberOfLines={1} style={{ fontSize: 15 }}>
+                <Icon name={'location-on'} size={22} color={colors.primary} />
+                {item.emitente.nome_fantasia}
+              </Text>
+            </TouchableOpacity>
+          </Row>
+        </Col>
+        <Col style={styles.priceContainer}>
+          {item.produto.favoritado ? (
+            <Text onPress={() => this.favoriteProduct(index)}>
+              <Icon name={'star'} size={30} color={colors.gold} />
+            </Text>
+          ) : (
+            <Text onPress={() => this.favoriteProduct(index)}>
+              <Icon name={'star-border'} size={30} color={'black'} />
+            </Text>
+          )}
+          <Text style={styles.priceText}>
+            R${' '}
+            {parseFloat(item.produto.preco_unitario).toLocaleString('pt-BR', {
+              minimumFractionDigits: 2,
+            })}
+          </Text>
+        </Col>
+      </Grid>
+    ) : (
+      <Grid style={styles.productContainerWhite}>
+        <Col>
+          <Row style={styles.nameProductContainer}>
+            <Text>
+              <Icon name={'shopping-basket'} size={22} color={colors.primary} />
+            </Text>
+            <Text numberOfLines={1} style={styles.nameProductText}>
+              {item.produto.nome}
+            </Text>
+          </Row>
+          <Row style={styles.marginLeft}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('LocationScreen', { item })}
+            >
+              <Text numberOfLines={1} style={{ fontSize: 15 }}>
+                <Icon name={'location-on'} size={22} color={colors.primary} />
+                {item.emitente.nome_fantasia}
+              </Text>
+            </TouchableOpacity>
+          </Row>
+        </Col>
+        <Col style={styles.priceContainer}>
+          {item.produto.favoritado ? (
+            <Text onPress={() => this.favoriteProduct(index)}>
+              <Icon name={'star'} size={30} color={colors.gold} />
+            </Text>
+          ) : (
+            <Text onPress={() => this.favoriteProduct(index)}>
+              <Icon name={'star-border'} size={30} color={'black'} />
+            </Text>
+          )}
+          <Text style={styles.priceText}>
+            R${' '}
+            {parseFloat(item.produto.preco_unitario).toLocaleString('pt-BR', {
+              minimumFractionDigits: 2,
+            })}
+          </Text>
+        </Col>
+      </Grid>
+    );
+  };
+
   render() {
-    const { ordernar } = this.state;
+    const { ordecanao } = this.state;
 
     return (
       <View style={styles.container}>
         <View style={styles.topContainer}>
           <TouchableOpacity
             style={styles.monthContainer}
-            onPress={() => this.ordernarNotas()}
+            onPress={() => this.handleOrdenacao()}
           >
-            <Text style={styles.monthText}>
-              {!ordernar ? 'Maior preço' : 'Menor preço'}
-            </Text>
+            <Text style={styles.ordenacao}>{ordecanao}</Text>
             <Text style={styles.icon}>
-              {ordernar ? (
-                <Icon
-                  name="keyboard-arrow-down"
-                  size={18}
-                  colors={colors.light}
-                />
-              ) : (
-                <Icon
-                  name="keyboard-arrow-up"
-                  size={18}
-                  colors={colors.light}
-                />
-              )}
+              <Icon name="filter-list" size={18} colors={colors.light} />
             </Text>
           </TouchableOpacity>
         </View>
-        <View>{this.renderProductList()}</View>
+        <View style={{ marginBottom: 34 }}>{this.renderProductList()}</View>
       </View>
     );
   }

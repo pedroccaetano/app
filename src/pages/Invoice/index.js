@@ -8,7 +8,7 @@ import styles from './styles';
 import utils from '~/utils/index';
 import QRCode from 'react-native-qrcode-svg';
 
-class NotaFiscal extends Component {
+class Invoice extends Component {
   static navigationOptions = {
     headerTitle: 'Nota Fiscal',
     headerTintColor: colors.primary,
@@ -24,13 +24,9 @@ class NotaFiscal extends Component {
     },
   };
 
-  // state = {
-  //   nota: {},
-  // };
-
   render() {
     const { nota } = this.props.navigation.state.params;
-    const { emitente, produtos, nfe, dados, total } = nota;
+    const { emitente, produtos, nfce } = nota;
 
     return (
       <ScrollView style={styles.container}>
@@ -54,9 +50,12 @@ class NotaFiscal extends Component {
               {emitente.municipio} - {emitente.uf}
             </Text>
           )}
-          <Text style={styles.textoNormal}>
-            CEP: {utils.mascaraCep(emitente.cep)}
-          </Text>
+          {emitente.cep ? (
+            <Text style={styles.textoNormal}>
+              CEP: {utils.mascaraCep(emitente.cep)}
+            </Text>
+          ) : null}
+
           <Text style={styles.textoNormal}>
             Documento Auxiliar da Nota Fiscal de Consumidor Eletrônica
           </Text>
@@ -108,12 +107,19 @@ class NotaFiscal extends Component {
                 </View>
                 <View style={[{ flex: 0.6 }, styles.stretch]}>
                   <Text style={[styles.center, styles.textoNormal]}>
-                    {produto.preco_unitario}
+                    {parseFloat(produto.preco_unitario).toLocaleString(
+                      'pt-BR',
+                      {
+                        minimumFractionDigits: 2,
+                      }
+                    )}
                   </Text>
                 </View>
                 <View style={[{ flex: 0.5 }, styles.stretch]}>
                   <Text style={[styles.right, styles.textoNormal]}>
-                    {produto.preco_total}
+                    {parseFloat(produto.preco_total).toLocaleString('pt-BR', {
+                      minimumFractionDigits: 2,
+                    })}
                   </Text>
                 </View>
               </View>
@@ -135,7 +141,9 @@ class NotaFiscal extends Component {
             </View>
             <View style={[{ flex: 0.2 }, styles.stretch]}>
               <Text style={styles.right}>
-                {utils.currencyFormat(parseFloat(total.valor_produto))}
+                {parseFloat(nfce.valor_produto).toLocaleString('pt-BR', {
+                  minimumFractionDigits: 2,
+                })}
               </Text>
             </View>
           </View>
@@ -154,17 +162,23 @@ class NotaFiscal extends Component {
                 https://nfce.sefaz.pe.gov.br
               </Text>
             ) : (
-              <Text style={[styles.textoNormal, { fontWeight: 'bold' }]}></Text>
+              <Text style={[styles.textoNormal, { fontWeight: 'bold' }]}>
+                https://www.sefaz.to.gov.br
+              </Text>
             )}
           </Text>
           <Text style={[styles.textoNormal, { marginTop: 8, marginBottom: 8 }]}>
-            {nfe.chave}
+            {nfce.chave}
           </Text>
-          <QRCode value={nfe.url} size={150} backgroundColor="#FFFFB9" />
+          <QRCode
+            value={nfce.url}
+            size={150}
+            backgroundColor={colors.invoice}
+          />
         </View>
       </ScrollView>
     );
   }
 }
 
-export default NotaFiscal;
+export default Invoice;

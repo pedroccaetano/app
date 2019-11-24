@@ -24,17 +24,18 @@ class SettingScreen extends Component {
 
     await AsyncStorage.clear();
 
-    navigation.navigate('Log');
+    navigation.navigate('Login');
   };
 
   render() {
     const { navigation } = this.props;
+
     return (
       <Grid>
         <Row>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('ProductListScreen')}
+            onPress={() => navigation.navigate('SpecialProductsScreen')}
           >
             <View style={styles.marginFifity}>
               <IconMaterial name="basket" size={100} color={colors.primary} />

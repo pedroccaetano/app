@@ -6,7 +6,7 @@ import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
 
 import Geocoder from 'react-native-geocoding';
-Geocoder.init('AIzaSyCTz-NfFknY2c9kuPMBsdzQYJCGNBn0XVw'); // use a valid API key
+Geocoder.init(''); // use a valid API key
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;

@@ -61,7 +61,7 @@ class SettingScreen extends Component {
         <Row style={styles.containerNfce}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('ScannerScreen')}
+            onPress={() => navigation.navigate('ScannerScreens')}
           >
             <View style={styles.marginFifity}>
               <IconMaterial

@@ -42,6 +42,9 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 15,
   },
+  dataEmissao: {
+    marginLeft: 4,
+  },
   priceContainer: {
     width: 80,
     flex: 0.6,

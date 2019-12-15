@@ -52,8 +52,7 @@ class Products extends Component {
   componentDidMount = async () => {
     const date = new Date();
     this.setState({
-      initDate: `${date.getDate()}/${date.getMonth() +
-        1}/${date.getFullYear()}`,
+      initDate: `01/${date.getMonth() + 1}/${date.getFullYear()}`,
       finalDate: `${date.getDate()}/${date.getMonth() +
         1}/${date.getFullYear()}`,
     });
@@ -68,6 +67,8 @@ class Products extends Component {
   };
 
   findProducts = async () => {
+    this.hidePicker();
+    Keyboard.dismiss();
     this.setState({ loading: true });
 
     let { initDate, finalDate, organization, productName, state } = this.state;
@@ -123,7 +124,6 @@ class Products extends Component {
       })
       .finally(() => {
         this.setState({ loading: false });
-        Keyboard.dismiss();
       });
   };
 
@@ -203,7 +203,7 @@ class Products extends Component {
       <View style={{ paddingHorizontal: 10, flex: 1 }}>
         <View style={{ flexDirection: 'row' }}>
           <View style={{ marginRight: 10 }}>
-            <Text style={styles.label}>Data incial</Text>
+            <Text style={styles.label}>Data inicial</Text>
             <DatePicker
               style={styles.datePicker}
               date={initDate}

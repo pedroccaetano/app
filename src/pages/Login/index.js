@@ -53,7 +53,6 @@ class Login extends Component {
         navigation.navigate('App');
       })
       .catch(err => {
-        console.log('erro fanily');
         const { resposta } = err.response.data;
 
         this.refs.toast.show(resposta);

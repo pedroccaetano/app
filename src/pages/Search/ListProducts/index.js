@@ -267,11 +267,24 @@ class ListProducts extends Component {
             <TouchableOpacity
               onPress={() => navigation.navigate('LocationScreen', { item })}
             >
-              <Text numberOfLines={1} style={{ fontSize: 15 }}>
-                <Icon name={'location-on'} size={22} color={colors.primary} />
-                {item.emitente.nome_fantasia}
-              </Text>
+              <Row>
+                <Text>
+                  <Icon name={'location-on'} size={22} color={colors.primary} />
+                </Text>
+                <Text numberOfLines={1} style={styles.nameProductText}>
+                  {item.emitente.nome_fantasia}
+                </Text>
+              </Row>
             </TouchableOpacity>
+          </Row>
+
+          <Row style={styles.marginLeft}>
+            <Text>
+              <Icon name={'date-range'} size={22} color={colors.primary} />
+            </Text>
+            <Text numberOfLines={1} style={styles.dataEmissao}>
+              {item.nfce.data_emissao_formatada}
+            </Text>
           </Row>
         </Col>
         <Col style={styles.priceContainer}>
@@ -307,11 +320,24 @@ class ListProducts extends Component {
             <TouchableOpacity
               onPress={() => navigation.navigate('LocationScreen', { item })}
             >
-              <Text numberOfLines={1} style={{ fontSize: 15 }}>
-                <Icon name={'location-on'} size={22} color={colors.primary} />
-                {item.emitente.nome_fantasia}
-              </Text>
+              <Row>
+                <Text>
+                  <Icon name={'location-on'} size={22} color={colors.primary} />
+                </Text>
+                <Text numberOfLines={1} style={styles.nameProductText}>
+                  {item.emitente.nome_fantasia}
+                </Text>
+              </Row>
             </TouchableOpacity>
+          </Row>
+
+          <Row style={styles.marginLeft}>
+            <Text>
+              <Icon name={'date-range'} size={22} color={colors.primary} />
+            </Text>
+            <Text numberOfLines={1} style={styles.nameProductText}>
+              {item.nfce.data_emissao_formatada}
+            </Text>
           </Row>
         </Col>
         <Col style={styles.priceContainer}>

@@ -1,12 +1,5 @@
 import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Dimensions,
-  View,
-  Text,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, Alert, ActivityIndicator } from 'react-native';
 
 import AsyncStorage from '@react-native-community/async-storage';
 import QRCodeScanner from 'react-native-qrcode-scanner';
@@ -25,6 +18,7 @@ const TabIcon = ({ tintColor }) => (
 class Scanner extends Component {
   static navigationOptions = {
     tabBarIcon: TabIcon,
+    header: null,
   };
 
   state = {
@@ -47,12 +41,6 @@ class Scanner extends Component {
       this.setState({ focusedScreen: false })
     );
   }
-
-  getScreenSize = () => {
-    const screenWidth = Math.round(Dimensions.get('window').width);
-    const screenHeight = Math.round(Dimensions.get('window').height);
-    this.setState({ screenWidth, screenHeight });
-  };
 
   readQrCode = scannerData => {
     const { data: url } = scannerData;
@@ -118,6 +106,7 @@ class Scanner extends Component {
   };
 
   saveNota = async url => {
+    this.refs.toast.show('Ag');
     const token = await AsyncStorage.getItem('@Sefaz:token');
     const user = await AsyncStorage.getItem('@Sefaz:user');
 
@@ -137,21 +126,27 @@ class Scanner extends Component {
               headers: { Authorization: `Bearer ${token}` },
             }
           )
-          .then(response => {
+          .then(async response => {
             const { nota, mensagem } = response.data;
 
             if (mensagem) {
-              this.refs.toast.show(mensagem);
-
-              // const { navigation } = this.props;
-              // navigation.navigate('ListProduct', { notas });
+              this.scanner.reactivate();
+              this.setState(
+                {
+                  loading: false,
+                  marker: true,
+                },
+                () => {
+                  this.props.navigation.navigate('InvoiceScanner', { nota });
+                }
+              );
             }
-            // this.refs.toast.show('Não encontramos nenhuma nota');
           })
-          .catch(error => {
+          .catch(() => {
             this.refs.toast.show('Erro inesperado');
           })
           .finally(() => {
+            this.scanner.reactivate();
             this.setState({
               loading: false,
               marker: true,
@@ -190,7 +185,7 @@ class Scanner extends Component {
           position="bottom"
           positionValue={200}
           style={{ backgroundColor: colors.primary }}
-          fadeOutDuration={1000}
+          fadeOutDuration={5000}
         />
       </>
     );

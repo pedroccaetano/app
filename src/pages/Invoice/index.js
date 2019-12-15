@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-
 import { Text, View } from 'react-native';
-
 import { ScrollView } from 'react-native-gesture-handler';
+
 import colors from '~/styles/colors';
 import styles from './styles';
 import utils from '~/utils/index';
@@ -33,6 +32,10 @@ class Invoice extends Component {
         <View style={styles.topContainer}>
           {emitente.uf === 'RS' ? (
             <Text style={styles.nomeFantasia}>{emitente.nome_fantasia}</Text>
+          ) : emitente.uf === 'TO' ? (
+            <>
+              <Text style={styles.nomeFantasia}>{emitente.nome_fantasia}</Text>
+            </>
           ) : (
             <>
               <Text style={styles.nomeFantasia}>{emitente.nome_fantasia}</Text>
@@ -93,7 +96,9 @@ class Invoice extends Component {
             return (
               <View style={styles.headerTable}>
                 <View style={[{ flex: 0.5 }, styles.stretch]}>
-                  <Text style={styles.textoNormal}>{produto.codigo}</Text>
+                  <Text style={styles.textoNormal}>
+                    {produto.codigo_produto}
+                  </Text>
                 </View>
                 <View style={[{ flex: 1 }, styles.stretch]}>
                   <Text style={[styles.left, styles.textoNormal]}>

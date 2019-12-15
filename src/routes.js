@@ -8,6 +8,7 @@ import {
 
 import colors from '~/styles/colors';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import IconMaterial from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // Screens
 import MainScreen from '~/pages/Main';
@@ -62,6 +63,25 @@ const MainScreens = createStackNavigator(
   }
 );
 
+const ScannerScreens = createStackNavigator(
+  {
+    Scanner: ScannerScreen,
+    InvoiceScanner: InvoiceScreen,
+  },
+  {
+    navigationOptions: {
+      tabBarLabel: 'scanner',
+      tabBarIcon: ({ focused }) => (
+        <IconMaterial
+          name="qrcode-scan"
+          size={22}
+          color={focused ? colors.primary : colors.light}
+        />
+      ),
+    },
+  }
+);
+
 const Routes = (userLogged = false) =>
   createAppContainer(
     createSwitchNavigator(
@@ -91,7 +111,7 @@ const Routes = (userLogged = false) =>
         App: createBottomTabNavigator(
           {
             MainScreens,
-            ScannerScreen,
+            ScannerScreens,
             MenuScreens,
           },
           {

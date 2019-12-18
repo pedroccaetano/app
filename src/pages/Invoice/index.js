@@ -112,19 +112,18 @@ class Invoice extends Component {
                 </View>
                 <View style={[{ flex: 0.6 }, styles.stretch]}>
                   <Text style={[styles.center, styles.textoNormal]}>
-                    {parseFloat(produto.preco_unitario).toLocaleString(
+                    {utils.currencyFormat(parseFloat(produto.preco_unitario))}
+                    {/* {parseFloat(produto.preco_unitario).toLocaleString(
                       'pt-BR',
                       {
                         minimumFractionDigits: 2,
                       }
-                    )}
+                    )} */}
                   </Text>
                 </View>
                 <View style={[{ flex: 0.5 }, styles.stretch]}>
                   <Text style={[styles.right, styles.textoNormal]}>
-                    {parseFloat(produto.preco_total).toLocaleString('pt-BR', {
-                      minimumFractionDigits: 2,
-                    })}
+                    {utils.currencyFormat(parseFloat(produto.preco_total))}
                   </Text>
                 </View>
               </View>
@@ -146,9 +145,10 @@ class Invoice extends Component {
             </View>
             <View style={[{ flex: 0.2 }, styles.stretch]}>
               <Text style={styles.right}>
-                {parseFloat(nfce.valor_produto).toLocaleString('pt-BR', {
+                {utils.currencyFormat(parseFloat(nfce.valor_produto))}
+                {/* {parseFloat(nfce.valor_produto).toLocaleString('pt-BR', {
                   minimumFractionDigits: 2,
-                })}
+                })} */}
               </Text>
             </View>
           </View>
